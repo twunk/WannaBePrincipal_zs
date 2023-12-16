@@ -1,0 +1,6 @@
+@WannaBePrincipal_HostAddress = http://localhost:5143
+
+GET {{WannaBePrincipal_HostAddress}}/users/
+Accept: application/json
+
+###
