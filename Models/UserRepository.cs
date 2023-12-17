@@ -107,6 +107,7 @@ namespace WannaBePrincipal.Models
             foreach (DocumentSnapshot documentSnapshot in allCitiesQuerySnapshot.Documents)
             {
                 Console.WriteLine("Document data for {0} document:", documentSnapshot.Id);
+                
                 Dictionary<string, object> docData = documentSnapshot.ToDictionary();
                 string json = JsonConvert.SerializeObject(docData);
                 UserData? user = JsonConvert.DeserializeObject<UserData>(json);
@@ -114,6 +115,8 @@ namespace WannaBePrincipal.Models
                 {
                     throw new DataMisalignedException("Something wrong in db.");
                 }
+                user.Id = documentSnapshot.Id;
+
                 docs.Add(user);
             }
 

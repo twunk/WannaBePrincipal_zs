@@ -43,7 +43,7 @@ namespace WannaBePrincipal.Models
 
     public class UserData
     {
-        private string Id = "";
+        public string Id = "";
 
         [Required]
         public required string Name { get; set; }

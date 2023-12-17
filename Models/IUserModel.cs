@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using WannaBePrincipal.Models;
+﻿using WannaBePrincipal.Models;
 
 public interface IUserModel
 {

@@ -8,14 +8,9 @@ namespace WannaBePrincipal.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController(IUserModel userModel) : ControllerBase
     {
-        private readonly IUserModel _userModel;
-
-        public UserController(IUserModel userModel)
-        {
-            _userModel = userModel;
-        }
+        private readonly IUserModel _userModel = userModel;
 
         /// <summary>
         /// Get a list of all users.

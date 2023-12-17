@@ -7,13 +7,11 @@ namespace TestUserManager
 {
     public class GetAllTests
     {
-        private UserController _controller;
         private Mock<IUserModel> _userModelMock;
 
         public GetAllTests()
         {
             _userModelMock = new Mock<IUserModel>();
-            _controller = new UserController(_userModelMock.Object);
         }
 
         [Fact]
