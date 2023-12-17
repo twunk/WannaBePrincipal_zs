@@ -8,9 +8,22 @@ Note: If you are selected for interview, you will be asked to show your applicat
 
 ## run code
 
-1. build
- docker build -t wannabe -f Dockerfile .
-1. run
- docker run -p 8080:80 wannabe
+### 1. firebase secret keys
 
-http://localhost:32777/swagger/index.html
+Create a new folder called "keys". Copy the secret keys to this folder.
+
+### 2. build
+
+docker build -t wannabe -f Dockerfile .
+
+### 3. run
+
+docker run -p 8080:80 wannabe
+
+### 4. test
+
+dotnet test /p:CollectCoverage=true
+
+It run all tests and measure the coverage of them.
+
+## can be improved

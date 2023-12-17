@@ -1,33 +1,71 @@
-﻿namespace WannaBePrincipal.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WannaBePrincipal.Models
 {
     public class Location
     {
-        public double Latitude = 0;
-        public double Longitude = 0;
+        [Required]
+        public double Lat { get; set; }
+
+        [Required]
+        public double Lng { get; set; }
     }
+
     public class AddressData
     {
-        public string City = "";
-        public string Street = "";
-        public string ZipCode = "";
-        public string Suite = "";
-        public Location Geo = new();
+        [Required]
+        public required string City { get; set; }
+
+        [Required]
+        public required string Street { get; set; }
+
+        [Required]
+        public required string ZipCode { get; set; }
+
+        [Required]
+        public required string Suite { get; set; }
+
+        [Required]
+        public required Location Geo { get; set; }
     }
-    public class Company
+
+    public class CompanyData
     {
-        public string Name = "";
-        public string BS = "";
-        public string CatchPhrase = "";
+        [Required]
+        public required string Name { get; set; }
+
+        [Required]
+        public required string BS { get; set; }
+
+        [Required]
+        public required string CatchPhrase { get; set; }
     }
+
     public class UserData
     {
         private string Id = "";
-        public string Name = "";
-        public string Email = "";
-        public string UserName = "";
-        public string Website = "";
-        public string Phone = "";
-        public AddressData Address = new();
+
+        [Required]
+        public required string Name { get; set; }
+
+        [Required]
+        [RegularExpression(@"^[A-Za-z0-9+_.-]+@(.+)$", ErrorMessage = "Invalid email format.")]
+        public required string Email { get; set; }
+
+        [Required]
+        public required string UserName { get; set; }
+
+        [Required]
+        public required string Website { get; set; }
+
+        [Required]
+        public required string Phone { get; set; }
+
+        [Required]
+        public required CompanyData Company { get; set; }
+
+        [Required]
+        public required AddressData Address { get; set; }
 
         public string GetId()
         { return Id; }
@@ -37,8 +75,8 @@
         {
             Dictionary<string, object> geoDict = new()
             {
-                { "latitude", Address.Geo.Latitude },
-                { "longitude", Address.Geo.Longitude }
+                { "lat", Address.Geo.Lat },
+                { "lng", Address.Geo.Lng }
             };
 
             Dictionary<string, object> addressDict = new()
@@ -50,6 +88,13 @@
                 { "geo", geoDict }
             };
 
+            Dictionary<string, object> companyDict = new()
+            {
+                { "bs", Company.BS },
+                { "catchPharse", Company.CatchPhrase },
+                { "name", Company.Name }
+            };
+
             Dictionary<string, object> userData = new()
             {
                 { "name", Name },
@@ -57,6 +102,7 @@
                 { "username", UserName },
                 { "website", Website },
                 { "address",  addressDict},
+                { "company", companyDict },
                 { "phone",  Phone}
             };
             return userData;

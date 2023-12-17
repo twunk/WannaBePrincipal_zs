@@ -10,11 +10,11 @@ namespace WannaBePrincipal.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UserRepository _userModel;
+        private readonly IUserModel _userModel;
 
-        public UserController(string repoProject = "able-source-200515")
+        public UserController(IUserModel userModel)
         {
-            _userModel = new(repoProject);
+            _userModel = userModel;
         }
 
         /// <summary>
@@ -54,11 +54,13 @@ namespace WannaBePrincipal.Controllers
             {
                 return BadRequest("Please provide the user id.");
             }
-            if (null == await _userModel.GetUser(id))
-            {
-                return NotFound("Problem occurred while editing the {id} user.");
+            try{
+                return Ok(await _userModel.GetUser(id));
             }
-            return Ok(id + " user was edited.");
+            catch(KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace WannaBePrincipal.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (await _userModel.EditUser(id, user))
+            if (!await _userModel.EditUser(id, user))
             {
                 return NotFound("Problem occurred while editing the {id} user.");
             }

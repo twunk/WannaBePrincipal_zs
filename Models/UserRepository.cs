@@ -1,22 +1,20 @@
 ﻿using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace WannaBePrincipal.Models
 {
-    public class UserRepository
+    public class UserRepository : IUserModel
     {
-        private readonly FirestoreDb db;
+        private readonly string projectString = "able-source-200515";
         
-        public UserRepository(string project)
-        {
-            db = FirestoreDb.Create(project);
-        }
-
         /// <summary>
         /// Add new user to a db.
         /// </summary>
         /// <param name="user">Document with data of the entry.</param>
         public async Task<string> AddUser(UserData user)
         {
+            FirestoreDb db = FirestoreDb.Create(projectString);
             CollectionReference collRef = db.Collection("users");
             var createResponse = await collRef.AddAsync(user.ToDictionary());
             return createResponse.Id;
@@ -30,12 +28,13 @@ namespace WannaBePrincipal.Models
         public async Task<UserData> GetUser(string userID)
         {
             // check if it exists
+            FirestoreDb db = FirestoreDb.Create(projectString);
             DocumentReference docRef = db.Collection("users").Document(userID.ToString());
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
             if (!snapshot.Exists)
             {
-                return null;
+                throw new KeyNotFoundException($"User with ID {userID} not found.");
             }
             else
             {
@@ -52,6 +51,7 @@ namespace WannaBePrincipal.Models
         public async Task<bool> EditUser(string userID, UserData user)
         {
             // check if it exists
+            FirestoreDb db = FirestoreDb.Create(projectString);
             DocumentReference docRef = db.Collection("users").Document(userID.ToString());
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -76,6 +76,7 @@ namespace WannaBePrincipal.Models
         public async Task<bool> DeleteUser(string userID)
         {
             // check if it exists
+            FirestoreDb db = FirestoreDb.Create(projectString);
             DocumentReference docRef = db.Collection("users").Document(userID.ToString());
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -96,17 +97,24 @@ namespace WannaBePrincipal.Models
         /// List all users.
         /// </summary>
         /// <returns>A <see cref="CollectionReference"/> with all the users.</returns>
-        public async Task<List<Dictionary<string, object>>> GetUsersFromDB()
+        public async Task<List<UserData>> GetUsersFromDB()
         {
-            List<Dictionary<string, object>> docs = [];
+            List<UserData> docs = [];
 
+            FirestoreDb db = FirestoreDb.Create(projectString);
             Query allCitiesQuery = db.Collection("users");
             QuerySnapshot allCitiesQuerySnapshot = await allCitiesQuery.GetSnapshotAsync();
             foreach (DocumentSnapshot documentSnapshot in allCitiesQuerySnapshot.Documents)
             {
                 Console.WriteLine("Document data for {0} document:", documentSnapshot.Id);
                 Dictionary<string, object> docData = documentSnapshot.ToDictionary();
-                docs.Add(docData);
+                string json = JsonConvert.SerializeObject(docData);
+                UserData? user = JsonConvert.DeserializeObject<UserData>(json);
+                if(user == null)
+                {
+                    throw new DataMisalignedException("Something wrong in db.");
+                }
+                docs.Add(user);
             }
 
             return docs;
@@ -117,9 +125,11 @@ namespace WannaBePrincipal.Models
         /// </summary>
         public async Task DeleteCollection(string collectionName, int batchSize = 100)
         {
+            FirestoreDb db = FirestoreDb.Create(projectString);
             CollectionReference collectionReference = db.Collection(collectionName);
             QuerySnapshot snapshot = await collectionReference.Limit(batchSize).GetSnapshotAsync();
             IReadOnlyList<DocumentSnapshot> documents = snapshot.Documents;
+
             while (documents.Count > 0)
             {
                 foreach (DocumentSnapshot document in documents)
@@ -130,6 +140,7 @@ namespace WannaBePrincipal.Models
                 snapshot = await collectionReference.Limit(batchSize).GetSnapshotAsync();
                 documents = snapshot.Documents;
             }
+
             Console.WriteLine("Finished deleting all documents from the collection.");
         }
     }
